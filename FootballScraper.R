@@ -65,27 +65,27 @@ list_date = c()
 
 for (date in dates) {
   print(date)
-  
+
   url_new_new = paste0(url_new, '?stichtag=', date)
-  
+
   url_new_new %>%
     rvest::read_html() %>%
     html_elements('div') %>%
     html_elements('.responsive-table .items tbody [class=rechts] a') -> element
-  
+
   element %>%
     html_text() %>%
     str_extract("[0-9]*\\,[0-9]*") -> items_marktwert
-  
+
   element %>%
     html_attr('title') -> verein
-  
-  
+
+
   # change ',' to '.'
   for (i in 1:length(items_marktwert)) {
     items_marktwert[i] = gsub(',', '.', items_marktwert[i])
   }
-  
+
   list_marktwert = append(list_marktwert, items_marktwert)
   list_verein = append(list_verein, verein)
   list_date = append(list_date, rep(c(date), each=18))
@@ -111,43 +111,43 @@ get_all_country_ids = function(max_) {
   list_ids = c()
   i = 1
   id = 1
-  
+
   while (i < max_) {
-    
+
     new_url = paste0(base_url, id)
-    
+
     res = httr::GET(new_url)
     status = httr::status_code(res)
-    
+
     if (status == 200) {
       i = i + 1
       new_url %>%
         read_html() %>%
         html_elements('.box .clearer.relevante-wettbewerbe-auflistung') %>%
         html_element('a') -> element_country_NEW
-      
+
       element_country_NEW %>%
         html_attr('title') -> title
-      
+
       element_country_NEW %>%
         html_attr('href') %>%
         strsplit('/') -> slug
-      
+
       print(length(slug))
-      
+
       if (length(slug) != 0) {
         slug = slug[[1]][2]
       } else {
         slug = NaN
       }
-      
+
       print(length(title))
-      
+
       if (length(title) == 0) {
         title = NaN
       }
-      
-      
+
+
       print(title)
       print(id)
       list_slugs = append(list_slugs, slug)
@@ -182,24 +182,24 @@ get_all_european_country_ids = function() {
   list_countries = list()
   list_names = c()
   list_ids = c()
-  
+
   base_url %>%
     read_html() %>%
     html_elements('div .content.text-rechts #europa_Map area') -> elements
-  
+
   elements %>%
     html_attr('href') %>%
     str_extract('[0-9]+') -> id
-  
+
   elements %>%
     html_attr('title') -> title
-    
-    
+
+
   print(title)
   print(id)
   list_names = append(list_names, title)
   list_ids = append(list_ids, id)
-  
+
   list_countries[[1]] = list_ids
   list_countries[[2]] = list_names
   list_countries
@@ -217,29 +217,29 @@ write_csv(df_euro, file='euro_country_codes.csv')
 
 get_all_club_ids_bundesliga = function() {
   base_url = 'https://www.transfermarkt.de/bundesliga/startseite/wettbewerb/L1'
-  
+
   list_bundesliga = list()
   list_names = c()
   list_ids = c()
-  
+
   base_url %>%
     rvest::read_html() %>%
     html_elements('.responsive-table .grid-view .items tbody [class="zentriert no-border-rechts"] a') -> elements
-  
+
   elements %>%
     html_attr('title') -> titles
-  
+
   elements %>%
     html_attr('href') %>%
     str_extract("[/][0-9]*[/]") %>%
     str_extract("[0-9]+") -> id
-  
+
   print(titles)
   print(id)
-  
+
   list_bundesliga[[1]] = id
   list_bundesliga[[2]] = titles
-  
+
   list_bundesliga
 }
 
@@ -253,49 +253,49 @@ df_bundesliga
 
 get_all_players_of_club = function(club_id, season) {
   base_url = paste0("https://www.transfermarkt.de/fc-bayern-munchen/startseite/verein/", club_id, "/saison_id/", season)
-  
+
   list_player = list()
-  
+
   base_url %>%
     read_html() -> html_
-  
+
   html_ %>%
     html_elements('.items tbody .rn_nummer') %>%
     html_text() -> rueckennummer
-  
+
   html_ %>%
     html_elements('.items tbody .posrela .hauptlink .hide-for-small a') %>%
     html_text() -> name
-  
+
   html_ %>%
     html_elements('.items tbody .posrela tr:last-child td') %>%
     html_text() -> position
-  
+
   html_ %>%
     html_elements('.items tbody [class="zentriert"]') -> birth_html
-  
+
   birth = c()
-  
+
   for (item in birth_html) {
     if (length(html_children(item)) == 0) {
       birth = append(birth, html_text(item))
     }
   }
-  
+
   print(birth)
-  
+
   birth %>%
     str_extract('[0-9]+[.][0-9]+[.][0-9]+') -> birth_date
-  
+
   birth %>%
     str_extract('[(][0-9]+[)]') %>%
     str_extract('[0-9]+') -> age
-  
+
   html_ %>%
     html_elements(' .items tbody [class="zentriert "]') -> nationality_html
-  
+
   nationality = c()
-  
+
   for (i in 1:length(nationality_html)) {
     n = html_elements(nationality_html[[i]], 'img') %>% html_attr('title')
     if(length(n) == 1) {
@@ -304,13 +304,13 @@ get_all_players_of_club = function(club_id, season) {
       nationality = append(nationality, paste0(n[1], '/', n[2]))
     }
   }
-  
+
   html_ %>%
     html_elements('.items tbody [class="rechts hauptlink"]') -> marktwerte_html
-  
+
   print(html_elements(marktwerte_html[[11]], 'a') %>% html_text())
   marktwerte = c()
-  
+
   for (i in 1:length(marktwerte_html)) {
     n = html_elements(marktwerte_html[[i]], 'a') %>% html_text()
     if(length(n) == 0) {
@@ -319,7 +319,7 @@ get_all_players_of_club = function(club_id, season) {
       marktwerte = append(marktwerte, n)
     }
   }
-  
+
   print(length(rueckennummer))
   print(length(name))
   print(length(position))
@@ -328,8 +328,8 @@ get_all_players_of_club = function(club_id, season) {
   print(length(age))
   print(length(nationality))
   print(marktwerte)
-  
-  
+
+
   list_player[[1]] = rueckennummer
   list_player[[2]] = name
   list_player[[3]] = position
@@ -368,6 +368,5 @@ df_eintracht_frankfurt_player
 
 # test/test
 
+### Testing Github
 
-
-          
