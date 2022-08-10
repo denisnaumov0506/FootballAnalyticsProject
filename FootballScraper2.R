@@ -333,7 +333,7 @@ scrapeColumns = function(year, country, club_id, game_name) {
         #print(name)
     }
 
-    if (length(name) != 0 && tolower(game_name) == tolower(name)) {
+    if (length(name) != 0 && grepl(tolower(game_name), tolower(name))) {
       box = item
       break
     }
@@ -500,5 +500,5 @@ createDataframe = function(year, country, club_id, game_name) {
 
 # Testing Section
 
-df_new_test = createDataframe(2013, 'spanien', 3375, 'international friendlies')
+df_new_test = createDataframe(2013, 'spanien', 3375, 'international')
 df_new_test
