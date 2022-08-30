@@ -274,7 +274,11 @@ create_dataframeWM = function(name) {
   df_wm
 }
 
+<<<<<<< HEAD
 df_wm = create_dataframeWM('teilnehmende teams an der wm22')
+=======
+df_wm = create_dataframeWM('teilnehmende teams an der wm')
+>>>>>>> 00a654f7c482bb71f35e54374ff16043db2724a9
 df_wm
 
 
@@ -492,3 +496,5 @@ createDataframe = function(year, country, club_id, game_name) {
 
 df_new_test = createDataframe(2013, 'spanien', 3375, 'world cup 2010')
 df_new_test
+
+?grepl()
