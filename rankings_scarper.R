@@ -63,4 +63,16 @@ getRank = function(country, date) {
 
 getRank('France', '2022-06-23')
 
+?map_df
+
+?pmap_df
+
+url1 = "https://www.transfermarkt.com/statistik/weltrangliste/statistik/stat/plus/0/galerie/0?datum=2010-05-26"
+
+url1 %>%
+    read_html() %>%
+    html_elements('.inline-select select option') %>%
+    html_text -> test
+
+    test
 
